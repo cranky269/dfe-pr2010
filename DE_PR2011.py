@@ -28,15 +28,34 @@ if __name__ == '__main__':
     print("Defocus map estimation started...")
     
     img = cv2.imread(args['image'])
+    rows, cols, ch = img.shape
     print("Input image loaded.")
+    print("Input image shape: ", rows, cols, ch)
     cv2.imshow('Input image', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    fblurmap = estimate_bmap_laplacian(img, sigma_c = 1, std1 = 1, std2 = 1.5)
-    print("Defocus map estimation completed.")
-    cv2.imwrite(args['image'] + '_bmap.png', np.uint8((fblurmap / fblurmap.max()) * 255))
-    print("Defocus map saved as: ", args['image'] + '_bmap.png')
-    np.save(args['image'] + '_bmap.npy', fblurmap)
-    print("Defocus map saved as: ", args['image'] + '_bmap.npy')
+    cv2.waitKey(0) # wait for key press
+    cv2.destroyAllWindows() # close all windows
+    
+    # Defocus Sparse Blur map estimation 
+    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0    #
+    edge_map = feature.canny(gimg, 1)
+    print("Edge map generated")
+    sparse_bmap = estimate_sparse_blur(gimg, edge_map, std1 = 1, std2 = 1.5)
+    h, w = sparse_bmap.shape
+    print("Sparse blur map generated")
+    print("w:", w, "h:", h)
+    cv2.imwrite(args['image'] + '_sparse_bmap.png', np.uint8((sparse_bmap / sparse_bmap.max()) * 255))
+    print("Defocus map saved as: ", args['image'] + '_sparse_bmap.png')
+    np.save(args['image'] + '_sparse_bmap.npy', sparse_bmap)
+    print("Defocus map saved as: ", args['image'] + '_sparse_bmap.npy')
+
+
+
+    # Defocus map estimation
+    # fblurmap = estimate_bmap_laplacian(img, sigma_c = 1, std1 = 1, std2 = 1.5)
+    # print("Defocus map estimation completed.")
+    # cv2.imwrite(args['image'] + '_bmap.png', np.uint8((fblurmap / fblurmap.max()) * 255))
+    # print("Defocus map saved as: ", args['image'] + '_bmap.png')
+    # np.save(args['image'] + '_bmap.npy', fblurmap)
+    # print("Defocus map saved as: ", args['image'] + '_bmap.npy')
 
 

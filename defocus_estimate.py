@@ -199,16 +199,19 @@ def estimate_bmap_laplacian(img, sigma_c, std1, std2):
     :param std2: Standard deviation of second reblurring
     :return: defocus blur map of the given image
     '''
-    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0
+    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0    #
     edge_map = feature.canny(gimg, sigma_c)
-
+    print("Edge map generated")
     sparse_bmap = estimate_sparse_blur(gimg, edge_map, std1, std2)
     h, w = sparse_bmap.shape
-
+    print("Sparse blur map generated")
+    print("w:", w, "h:", h)
     L1 = get_laplacian(img / 255.0)
     A, b = make_system(L1, sparse_bmap.T)
-
+    print("System generated")
+    print(f"A的维度: {A.shape}")       # 查看N的大小（N×N）
+    print(f"A的非零元素数: {A.nnz}")  # 非零元素越多，计算越慢
     bmap = scipy.sparse.linalg.spsolve(A, b).reshape(w, h).T
-
+    print("Defocus map generated")
     return bmap
 
