@@ -4,6 +4,10 @@ from defocus_estimate import *
 
 
 def get_args():
+    '''
+
+    :return: dictionary of arguments
+    '''
     parser = argparse.ArgumentParser(description='Defocus map estimation from a single image, '
                                                  'S. Zhuo, T. Sim - Pattern Recognition, 2011 - Elsevier \n')
 
