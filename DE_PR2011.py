@@ -23,7 +23,7 @@ def get_args():
 if __name__ == '__main__':
 
     #args = get_args()
-    args = {'image': r"C:\Users\lenovo\Desktop\ASP\Distance_Question\dfe-pr2010\input3.png"}
+    args = {'image': r"C:\Users\lenovo\Desktop\ASP\Distance_Question\dfe-pr2010\input0.png"}
     print("The input image is: ", args['image'])
     print("Defocus map estimation started...")
     
