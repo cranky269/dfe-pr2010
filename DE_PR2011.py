@@ -39,6 +39,9 @@ if __name__ == '__main__':
     gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0    #
     edge_map = feature.canny(gimg, 1)
     print("Edge map generated")
+    cv2.imwrite(args['image'] + '_edge_map.png', np.uint8(edge_map * 255))
+    print("Edge map saved as: ", args['image'] + '_edge_map.png')
+
     sparse_bmap = estimate_sparse_blur(gimg, edge_map, std1 = 1, std2 = 1.5)
     h, w = sparse_bmap.shape
     print("Sparse blur map generated")

@@ -7,8 +7,8 @@ import scipy.sparse.linalg
 
 from skimage import feature
 
-
-def make_system(L, sparse_map, constraint_factor=0.001):
+# 修正constraint_factor（cong0.001--》0.005）
+def make_system(L, sparse_map, constraint_factor=0.005):
     '''
 
     :param L: Laplacian Matrix.
@@ -38,6 +38,7 @@ def g1x(x, y, s1):
     :return:
     '''
     s1sq = s1 ** 2
+    # 计算x方向的高斯一阶导数
     g = -1 * np.multiply(np.divide(x, 2 * np.pi * s1sq ** 2),
                          np.exp(-1 * np.divide(x ** 2 + y ** 2, 2 * s1sq)))
 
@@ -53,6 +54,7 @@ def g1y(x, y, s1):
     :return:
     '''
     s1sq = s1 ** 2
+    # 计算y方向的高斯一阶导数
     g = -1 * np.multiply(np.divide(y, 2 * np.pi * s1sq ** 2),
                          np.exp(-1 * np.divide(x ** 2 + y ** 2, 2 * s1sq)))
 
@@ -186,6 +188,7 @@ def estimate_sparse_blur(gimg, edge_map, std1, std2):
     sparse_bmap = np.sqrt(sparse_vals)
     sparse_bmap[np.isnan(sparse_bmap)] = 0
     sparse_bmap[sparse_bmap > 5] = 5
+    # 截断sparse_bmap的最大值(因为一般照片的的值为0~5)
 
     return sparse_bmap
 
@@ -199,19 +202,19 @@ def estimate_bmap_laplacian(img, sigma_c, std1, std2):
     :param std2: Standard deviation of second reblurring
     :return: defocus blur map of the given image
     '''
-    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0    #
-    edge_map = feature.canny(gimg, sigma_c)
+    gimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) / 255.0    
+    edge_map = feature.canny(gimg, sigma_c)     
     print("Edge map generated")
-    sparse_bmap = estimate_sparse_blur(gimg, edge_map, std1, std2)
+    sparse_bmap = estimate_sparse_blur(gimg, edge_map, std1, std2)  # √
     h, w = sparse_bmap.shape
     print("Sparse blur map generated")
     print("w:", w, "h:", h)
-    L1 = get_laplacian(img / 255.0)
-    A, b = make_system(L1, sparse_bmap.T)
+    L1 = get_laplacian(img / 255.0) # √
+    A, b = make_system(L1, sparse_bmap.T)   # √
     print("System generated")
     print(f"A的维度: {A.shape}")       # 查看N的大小（N×N）
     print(f"A的非零元素数: {A.nnz}")  # 非零元素越多，计算越慢
-    bmap = scipy.sparse.linalg.spsolve(A, b).reshape(w, h).T
+    bmap = scipy.sparse.linalg.spsolve(A, b).reshape(w, h).T    # √
     print("Defocus map generated")
     return bmap
 
