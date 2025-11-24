@@ -250,5 +250,27 @@ def jbf_filtered(sparse_map,edge_map,original_map,d= 3,sigma_color =-1,sigma_spa
     print("filtered done")
     return filtered_edge_map
 
+def generate_angle_mask(i_diff,i_sum,threshold = 0.1):
+    '''
+    :param i_diff: diff图像
+    :param i_sum: 低通图[0,1]
+    :param threshold: 阈值
+    :return: angle_mask 对于全图的焦前焦后mask[0为不确定][np.float64]
+    '''
+    print("start to generate angle mask")
+    # 计算x方向差分
+    kernel=np.array([[0,0,0],
+                    [-1,1,0],
+                    [0,0,0]],dtype=np.float32)
+    # 二维卷积操作
+    i_sum_diffx=cv2.filter2D(i_sum,-1,kernel)
+    sign_diff = np.sign(i_diff)
+    sign_sum_x_diff = np.sign(i_sum_diffx)
+    angle_mask = sign_diff * sign_sum_x_diff
+    angle_mask = np.where(abs(sign_diff)>threshold,angle_mask,0)
+    print("angle mask generated")
+    return angle_mask
+
+
 
     

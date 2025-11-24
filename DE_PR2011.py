@@ -58,6 +58,9 @@ if __name__ == '__main__':
     print("JBF filtered defocus map saved as: ", args['image'] + '_filtered_bmap.png')
     np.save(args['image'] + '_filtered_bmap.npy', filtered_bmap)
 
+    # angle_mask 生成
+    # angle_mask = generate_angle_mask(i_diff, gimg, threshold=0.1)
+
     # Defocus map estimation
     fblurmap = estimate_bmap_laplacian(img, sigma_c = 1, std1 = 1, std2 = 1.5)
     print("Defocus map estimation completed.")
