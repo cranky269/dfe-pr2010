@@ -51,7 +51,12 @@ if __name__ == '__main__':
     np.save(args['image'] + '_sparse_bmap.npy', sparse_bmap)
     print("Defocus map saved as: ", args['image'] + '_sparse_bmap.npy')
 
-
+    # JBF filtered defocus map estimation
+    filtered_bmap = jbf_filtered(sparse_bmap, edge_map, gimg, d=3, sigma_color=-1, sigma_space=-1)
+    print("JBF filtered defocus map estimation completed.")
+    cv2.imwrite(args['image'] + '_filtered_bmap.png', np.uint8((filtered_bmap / filtered_bmap.max()) * 255))
+    print("JBF filtered defocus map saved as: ", args['image'] + '_filtered_bmap.png')
+    np.save(args['image'] + '_filtered_bmap.npy', filtered_bmap)
 
     # Defocus map estimation
     fblurmap = estimate_bmap_laplacian(img, sigma_c = 1, std1 = 1, std2 = 1.5)

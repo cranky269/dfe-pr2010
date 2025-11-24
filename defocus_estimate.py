@@ -218,3 +218,37 @@ def estimate_bmap_laplacian(img, sigma_c, std1, std2):
     print("Defocus map generated")
     return bmap
 
+def jbf_filtered(sparse_map,edge_map,original_map,d= 3,sigma_color =-1,sigma_space = -1):
+    '''
+
+    :param sparse_map: the original sparse_map 
+    :param edge_map: the edge_map of the image [0,1]
+    :param original_map: the original grey photograph [0,255]
+    :param sigma_color: the parameter for color space
+    :param: sigma_space: the parameter for spatial space
+    :return: filtered_sparse_map -- the sparse_map after filtering[np.float32]
+    '''
+    sparse_map = sparse_map.astype(np.float32)
+    original_map = original_map.astype(np.float32)
+
+    h,w = original_map.shape
+    if sigma_color == -1:
+        sigma_color = original_map.max()/10
+    if sigma_space == -1:
+        sigma_space = max(h,w)/10
+    print("sigma_color:%d\tsigma_space:%d",sigma_color,sigma_space)
+
+
+
+    print("run the filter")
+
+    filtered_all_map = cv2.ximgproc.jointBilateralFilter(original_map,sparse_map,d,sigmaColor=sigma_color,sigmaSpace=sigma_space)
+
+    # the edge mask
+    edge_mask = edge_map
+    filtered_edge_map = edge_mask*filtered_all_map + (1-edge_mask)*sparse_map
+    print("filtered done")
+    return filtered_edge_map
+
+
+    
