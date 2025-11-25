@@ -272,5 +272,17 @@ def generate_angle_mask(i_diff,i_sum,threshold = 0.1):
     return angle_mask
 
 
-
+def generate_imambiguous_sparse_map(sparse_bmp,angle_mask,edge_mask):
+    '''
+    :param sparse_bmp: 稀疏边缘图
+    :param angle_mask: 焦前焦后图[-1,0,1]
+    :param edge_mask: 边缘图[0,1]
+    '''
+    bmap_clear = sparse_bmp*angle_mask
+    bmap_clear_abs = np.abs(bmap_clear)
+    kernel= cv2.getStructuringElement(cv2.MORPH_RECT, (3,3)) # 八领域
+    bmap_clear_dilated = cv2.dilate(bmap_clear_abs,kernel=kernel)
+    sign_matrix = np.where(angle_mask>=0,1,-1)
+    bmap_clear_filtered = bmap_clear_dilated*sign_matrix*edge_mask
+    return bmap_clear_filtered
     
