@@ -74,6 +74,7 @@ if __name__ == '__main__':
     # np.save(args['image'] + '_angle_mask.npy', angle_mask)
     # print("Angle mask saved as: ", args['image'] + '_angle_mask.npy')
     angle_mask = np.full((h,w),1)
+    angle_mask[:h//2, :w//2] = -1
     show_cool_warm_photo(angle_mask, title='Angle Mask', if_save=True, save_path=args['image'] + '_angle_mask.png')
     print("Angle mask saved as: ", args['image'] + '_angle_mask.png')
     np.save(args['image'] + '_angle_mask.npy', angle_mask)
@@ -87,8 +88,10 @@ if __name__ == '__main__':
     print("Imambiguous sparse map saved as: ", args['image'] + '_imambiguous_sparse_map.npy')
     mi = np.min(imambiguous_sparse_bmap)
     ma = np.max(imambiguous_sparse_bmap)
-
-
+    imambiguous_sparse_bmap[imambiguous_sparse_bmap<0] = imambiguous_sparse_bmap[imambiguous_sparse_bmap<0]-mi+ma
+    imambiguous_sparse_bmap = (imambiguous_sparse_bmap)/2 # 规范到一个大于0的区间里面
+    show_cool_warm_photo(imambiguous_sparse_bmap, title='Imambiguous Sparse Map', if_save=True, save_path=args['image'] + '_imambiguous_sparse_map_norm.png')
+    print("Imambiguous sparse map saved as: ", args['image'] + '_imambiguous_sparse_map_norm.png')
 
     # Defocus map estimation
     # fblurmap = estimate_bmap_laplacian(img, sigma_c = 1, std1 = 1, std2 = 1.5)
@@ -104,7 +107,9 @@ if __name__ == '__main__':
     print("System generated")
     print(f"A的维度: {A.shape}")       # 查看N的大小（N×N）
     print(f"A的非零元素数: {A.nnz}")  # 非零元素越多，计算越慢
-    fblurmap = scipy.sparse.linalg.spsolve(A, b).reshape(w, h).T   
+    fblurmap = scipy.sparse.linalg.spsolve(A, b).reshape(w, h).T  
+    fblurmap = fblurmap*2
+    fblurmap[fblurmap>=ma] = fblurmap[fblurmap>=ma]-ma+mi  # 还原到原来的区间
     show_cool_warm_photo(fblurmap, title='Non-ambiguous Defocus Map', if_save=True, save_path=args['image'] + '_non_ambiguous_bmap.png')
     print("Defocus map saved as: ", args['image'] + '_non_ambiguous_bmap.png')
     np.save(args['image'] + 'non_ambiguous_bmap.npy', fblurmap)
